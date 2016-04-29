@@ -17,10 +17,21 @@ exceptions.txt
 README.txt
 -You're reading it!
 
-Filter.java
--The main program, a word filter. Takes a message and filters out curse words while leaving exception words alone. Only returns up to the first 80 characters of the given message. If a curse word is found and only some of its letters are found in exception words, the remaining letters of the curse word are filtered (prevents some filter evasion).
+Filter.class
+-The main package, currently only has one function, String convert(String);
+Takes a message and filters out curse words while leaving exception words alone.
+Only returns up to the first 80 characters of the given message.
+If a curse word is found and only some of its letters are found in exception words,
+the remaining letters of the curse word are filtered (prevents some filter evasion).
 
-To-Compile: javac Filter.java
+Usage:
+1.) Put Filter.class with the rest of your source files
+2.) Declare a new WFilter object (i.e. Filter f = new Filter();)
+3.) Call function with f.convert("Message to filter here");
 
-Usage: java Filter
+FilterTest.java
+-A small program to test the above.
+
+To-Compile: javac FilterTest.java
+Usage: java FilterTest
 -Enter a message to be filtered.
