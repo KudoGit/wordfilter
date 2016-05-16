@@ -17,7 +17,7 @@ import java.util.List;
 
 public class Filter
 {   
-    public static void main() {
+    public String convert(String buffer) {
         String[] curses = null;
         String[] exceptions = null;
         String userDirectory = System.getProperty("user.dir");
@@ -30,6 +30,7 @@ public class Filter
                 lines.add(csc.nextLine());
             }
             curses = lines.toArray(new String[0]);
+            csc.close();
         
             Scanner sc = new Scanner(new File(userDirectory + "/exceptions.txt"));
             List<String> linesE = new ArrayList<String>();
@@ -37,14 +38,10 @@ public class Filter
                 linesE.add(sc.nextLine());
             }
             exceptions = linesE.toArray(new String[0]);
+            sc.close();
         } catch(Exception e) {
             System.out.println("Oh, files not found.");
         }
-
-        //Get the single line of user-input
-        System.out.print("Enter message (80 char limit): ");
-        Scanner in = new Scanner(System.in);
-        String buffer = in.nextLine();
         
         char[] result = new char[80];
 
@@ -65,37 +62,53 @@ public class Filter
         //handle exception words. Mark characters as "safe" if exception word is matched.
         for(int i=0; i < exceptions.length; i++) {
             while(true) {
+                //if word is too long to possibly be in the string, go to next word
                 if((subIndex+exceptions[i].length()) > lcBuffer.length()) break;
                 wordIndex = lcBuffer.substring(subIndex).indexOf(exceptions[i]);
                 if(wordIndex < 0) break; //word not found in remaining message, go to next word
+                
+                //safe word found, mark all of its characters as safe
                 for(int j=0; j < exceptions[i].length(); j++) {
                    safe[subIndex+wordIndex+j] = true;
                 }
+                //search remaining string (in case the word is in the message multiple times)
                 subIndex += wordIndex + exceptions[i].length();
             }
             wordIndex = 0;
             subIndex  = 0;
         }
         
-        //handle remaining curse words and mark them to be censored
-        //even if some chars of a curse word are marked safe,remaining chars are still censored
-        //TO-DO: loop is extremely similar to above loop, make function to cover both? 
+        //handle remaining curse words and mark them to be censored 
+        boolean isSafe = true;
         for(int i=0; i < curses.length; i++) {
             while(true) {
                 if((subIndex+curses[i].length()) > lcBuffer.length()) break;
                 wordIndex = lcBuffer.substring(subIndex).indexOf(curses[i]);
                 if(wordIndex < 0) break;
+                
+                //check if the entire word is marked safe
                 for(int j=0; j < curses[i].length(); j++) {
-                    if(!safe[subIndex+wordIndex+j]) curse[subIndex+wordIndex+j] = true;
+                    if(!safe[subIndex+wordIndex+j]) {
+                        isSafe = false;
+                        break;
+                    }
+                }
+                
+                //if not entirely safe, censor it
+                if(!isSafe) {
+                    for(int j=0; j < curses[i].length(); j++) {
+                        curse[subIndex+wordIndex+j] = true;
+                    }
                 }
                 subIndex += wordIndex + curses[i].length();
+                isSafe = true;
             }
             wordIndex = 0;
             subIndex  = 0;
         }
 
         //rebuilds the message based on censors.
-        for(int i=0; i < buffer.length() || i < 80; i++) {
+        for(int i=0; i < buffer.length() && i < 80; i++) {
             if(curse[i]) {
                 result[i] = '*';
             } else {
@@ -103,6 +116,7 @@ public class Filter
             }
         }
 
-        System.out.println(result);
+        String strResult = new String(result);
+        return strResult;
     }
 }
