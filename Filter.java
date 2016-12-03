@@ -14,6 +14,7 @@ import java.io.File;
 import java.util.Scanner;
 import java.util.ArrayList;
 import java.util.List;
+import java.lang.String;
 
 public class Filter
 {   
@@ -43,7 +44,7 @@ public class Filter
             System.out.println("Oh, files not found.");
         }
         
-        char[] result = new char[80];
+        char[] result = new char[900];
 
         int wordIndex = 0;
         int subIndex  = 0;
@@ -62,7 +63,7 @@ public class Filter
         //handle exception words. Mark characters as "safe" if exception word is matched.
         for(int i=0; i < exceptions.length; i++) {
             while(true) {
-                //if word is too long to possibly be in the string, go to next word
+                //if word is too long to possibly be in the remaining string, go to next word
                 if((subIndex+exceptions[i].length()) > lcBuffer.length()) break;
                 wordIndex = lcBuffer.substring(subIndex).indexOf(exceptions[i]);
                 if(wordIndex < 0) break; //word not found in remaining message, go to next word
@@ -108,15 +109,16 @@ public class Filter
         }
 
         //rebuilds the message based on censors.
-        for(int i=0; i < buffer.length() && i < 80; i++) {
+        for(int i=0; i < buffer.length() && i < result.length; i++) {
             if(curse[i]) {
                 result[i] = '*';
             } else {
                 result[i] = buffer.charAt(i);
             }
+            if(buffer.charAt(i) == '\n') break;
         }
 
         String strResult = new String(result);
-        return strResult;
+        return strResult.trim();
     }
 }
